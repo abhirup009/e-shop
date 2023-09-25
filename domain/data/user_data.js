@@ -29,9 +29,10 @@ const UserSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		passwordChangedAt: Date,
-		createdAt: Date,
-		updatedAt: Date,
+		passwordChangedAt: {
+			type: Date,
+			required: false,
+		},
 	},
 	{ timestamps: true }
 );

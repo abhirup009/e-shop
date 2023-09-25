@@ -8,11 +8,11 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const { userRoute } = require('./routes');
+const { userRoute } = require('./routes/index');
 
-const { BaseV1 } = require('./named_entites/base_endpoints');
-console.log(`jkdjksjkd ->>>>>>>  ----- ${BaseV1}`);
-app.use(`${BaseV1}/users`, userRoute);
+const { BaseV1 } = require('./domain/named_entites/base_endpoints');
+
+app.use(`${BaseV1}/users/`, userRoute);
 
 /* connecting to the database */
 const dbConfig = require('./config/database-config');
