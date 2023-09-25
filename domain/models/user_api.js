@@ -1,5 +1,6 @@
 class UserApiResponse {
-	constructor(username, email, name, role, status) {
+	constructor(id, username, email, name, role, status) {
+		this.id = id;
 		this.username = username;
 		this.email = email;
 		this.name = name;

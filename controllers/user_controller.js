@@ -1,38 +1,27 @@
 const UserData = require('../domain/data/user_data');
 const UserApiResponse = require('../domain/models/user_api');
-const Role = require('../domain/named_entites/roles');
-const Status = require('../domain/named_entites/status');
-const bcrypt = require('bcryptjs');
+const {
+	toUserDataObjectFromDomainObject,
+	toUserDomainObjectFromRequest,
+	toUserApiObjectFromDataObject,
+} = require('../domain/utils/user_utils');
 
 const UserController = {
-	/* create new user */
 	async createUser(req, res, next) {
 		console.log(`Attempting to insert user: ${req.body.username} to DB`);
 
-		const newUser = new UserData({
-			username: req.body.username,
-			email: req.body.email,
-			name: req.body.name,
-			password: bcrypt.hashSync(req.body.password, 11),
-			role: Role.User.description,
-			status: Status.Active.description,
-		});
+		const user = toUserDomainObjectFromRequest(req);
+
+		const userData = toUserDataObjectFromDomainObject(user);
 
 		try {
-			const user = await newUser.save();
+			const savedUser = await userData.save();
 
-			const userApiResponse = new UserApiResponse(
-				user.username,
-				user.email,
-				user.name,
-				user.role,
-				user.status
-			);
+			const userApiResponse = toUserApiObjectFromDataObject(savedUser);
 
 			res.status(201).json({
 				type: 'success',
-				message: 'User has been created successfuly',
-				user: userApiResponse,
+				data: userApiResponse,
 			});
 		} catch (err) {
 			res.status(500).json({
@@ -43,24 +32,17 @@ const UserController = {
 		}
 	},
 
-	/* get all users */
 	async getUsers(req, res, next) {
 		try {
 			const users = await UserData.find();
 
-			const convertedUserApiResponse = users.map((user) => {
-				return new UserApiResponse(
-					user.username,
-					user.email,
-					user.name,
-					user.role,
-					user.status
-				);
+			const convertedUsers = users.map((user) => {
+				return toUserApiObjectFromDataObject(user);
 			});
 
 			res.status(200).json({
 				type: 'success',
-				users: convertedUserApiResponse,
+				data: convertedUsers,
 			});
 		} catch (err) {
 			res.status(500).json({
@@ -71,14 +53,15 @@ const UserController = {
 		}
 	},
 
-	/* get single user */
 	async getUser(req, res) {
 		try {
 			const user = await UserData.findById(req.params.id);
-			const { password, ...data } = user._doc;
+
+			const convertedUser = toUserApiObjectFromDataObject(user);
+
 			res.status(200).json({
 				type: 'success',
-				data,
+				data: convertedUser,
 			});
 		} catch (err) {
 			res.status(500).json({
