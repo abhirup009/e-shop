@@ -1,76 +1,61 @@
 const UserData = require('../domain/data/user_data');
+const EShopError = require('../domain/errors/error');
 const UserApiResponse = require('../domain/models/user_api');
 const {
 	toUserDataObjectFromDomainObject,
 	toUserDomainObjectFromRequest,
 	toUserApiObjectFromDataObject,
 } = require('../domain/utils/user_utils');
+const asyncHandler = require('express-async-handler');
 
-const UserController = {
-	async createUser(req, res, next) {
-		console.log(`Attempting to insert user: ${req.body.username} to DB`);
+const createUser = asyncHandler(async (req, res, next) => {
+	console.log(`Attempting to insert user: ${req.body.username} to DB`);
 
-		const user = toUserDomainObjectFromRequest(req);
+	const user = toUserDomainObjectFromRequest(req);
 
-		const userData = toUserDataObjectFromDomainObject(user);
+	const userData = toUserDataObjectFromDomainObject(user);
 
-		try {
-			const savedUser = await userData.save();
+	try {
+		const savedUser = await userData.save();
 
-			const userApiResponse = toUserApiObjectFromDataObject(savedUser);
+		const userApiResponse = toUserApiObjectFromDataObject(savedUser);
 
-			res.status(201).json({
-				type: 'success',
-				data: userApiResponse,
-			});
-		} catch (err) {
-			res.status(500).json({
-				type: 'error',
-				message: 'Something went wrong please try again',
-				err,
-			});
-		}
-	},
+		res.json({
+			data: userApiResponse,
+		});
+	} catch (err) {
+		throw new EShopError('Unable to create User.', 401);
+	}
+});
 
-	async getUsers(req, res, next) {
-		try {
-			const users = await UserData.find();
+const getUsers = asyncHandler(async (req, res, next) => {
+	try {
+		const users = await UserData.find();
 
-			const convertedUsers = users.map((user) => {
-				return toUserApiObjectFromDataObject(user);
-			});
+		const convertedUsers = users.map((user) => {
+			return toUserApiObjectFromDataObject(user);
+		});
 
-			res.status(200).json({
-				type: 'success',
-				data: convertedUsers,
-			});
-		} catch (err) {
-			res.status(500).json({
-				type: 'error',
-				message: 'Something went wrong please try again',
-				err,
-			});
-		}
-	},
+		res.json({
+			data: convertedUsers,
+		});
+	} catch (err) {
+		throw new EShopError('Unable to get Users.', 401);
+	}
+});
 
-	async getUser(req, res) {
-		try {
-			const user = await UserData.findById(req.params.id);
+const getUser = asyncHandler(async (req, res) => {
+	try {
+		const user = await UserData.findById(req.params.id);
 
-			const convertedUser = toUserApiObjectFromDataObject(user);
+		const convertedUser = toUserApiObjectFromDataObject(user);
 
-			res.status(200).json({
-				type: 'success',
-				data: convertedUser,
-			});
-		} catch (err) {
-			res.status(500).json({
-				type: 'error',
-				message: 'Something went wrong please try again',
-				err,
-			});
-		}
-	},
-};
+		res.json({
+			data: convertedUser,
+		});
+	} catch (err) {
+		throw new EShopError('Unable to get User.', 401);
+	}
+});
 
-module.exports = UserController;
+module.exports = { createUser, getUsers, getUser };
