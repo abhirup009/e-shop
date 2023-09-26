@@ -1,21 +1,18 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-
 const app = express();
+const { userRoute } = require('./routes/index');
+const { BaseV1 } = require('./domain/named_entites/base_endpoints');
+const dbConfig = require('./config/database-config');
+const { errorHandler } = require('./handlers/error_handler');
 
 /* configure body-parser */
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const { userRoute } = require('./routes/index');
-
-const { BaseV1 } = require('./domain/named_entites/base_endpoints');
-
 app.use(`${BaseV1}/users/`, userRoute);
-
-/* connecting to the database */
-const dbConfig = require('./config/database-config');
+app.use(errorHandler);
 
 mongoose
 	.connect(dbConfig.url, {
