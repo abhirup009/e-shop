@@ -6,8 +6,10 @@ const { userRoute } = require('./routes/index');
 const { BaseV1 } = require('./domain/named_entites/base_endpoints');
 const dbConfig = require('./config/database-config');
 const { errorHandler } = require('./handlers/error_handler');
+const morgan = require('morgan');
 
 /* configure body-parser */
+app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 

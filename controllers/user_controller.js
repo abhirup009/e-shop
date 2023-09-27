@@ -2,30 +2,34 @@ const UserData = require('../domain/data/user_data');
 const EShopError = require('../domain/errors/error');
 const UserApiResponse = require('../domain/models/user_api');
 const {
-	toUserDataObjectFromDomainObject,
-	toUserDomainObjectFromRequest,
-	toUserApiObjectFromDataObject,
+	convertToUserDataObjectFromDomainObject,
+	convertToUserDomainObjectFromRequest,
+	convertToUserApiObjectFromDataObject,
 } = require('../domain/utils/user_utils');
 const asyncHandler = require('express-async-handler');
 
 const createUser = asyncHandler(async (req, res, next) => {
-	console.log(`Attempting to insert user: ${req.body.username} to DB`);
+	console.log(`Attempting to insert user: ${req.body.userName} to DB`);
 
-	const user = toUserDomainObjectFromRequest(req);
+	const user = convertToUserDomainObjectFromRequest(req);
 
-	const userData = toUserDataObjectFromDomainObject(user);
+	const userData = convertToUserDataObjectFromDomainObject(user);
+	console.log(`1`);
 
-	try {
-		const savedUser = await userData.save();
+	const savedUser = await userData.save();
+	console.log(`2`);
+	const userApiResponse = convertToUserApiObjectFromDataObject(savedUser);
+	console.log(`3`);
 
-		const userApiResponse = toUserApiObjectFromDataObject(savedUser);
+	res.json({
+		data: userApiResponse,
+	});
+	// try {
+	// 		// const savedUser = await userData.save();
 
-		res.json({
-			data: userApiResponse,
-		});
-	} catch (err) {
-		throw new EShopError('Unable to create User.', 401);
-	}
+	// 	} catch (err) {
+	// 		throw new EShopError('Unable to create User.', 401);
+	// 	}
 });
 
 const getUsers = asyncHandler(async (req, res, next) => {
@@ -33,7 +37,7 @@ const getUsers = asyncHandler(async (req, res, next) => {
 		const users = await UserData.find();
 
 		const convertedUsers = users.map((user) => {
-			return toUserApiObjectFromDataObject(user);
+			return convertToUserApiObjectFromDataObject(user);
 		});
 
 		res.json({
@@ -48,7 +52,7 @@ const getUser = asyncHandler(async (req, res) => {
 	try {
 		const user = await UserData.findById(req.params.id);
 
-		const convertedUser = toUserApiObjectFromDataObject(user);
+		const convertedUser = convertToUserApiObjectFromDataObject(user);
 
 		res.json({
 			data: convertedUser,
