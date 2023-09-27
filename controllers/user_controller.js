@@ -11,25 +11,18 @@ const asyncHandler = require('express-async-handler');
 const createUser = asyncHandler(async (req, res, next) => {
 	console.log(`Attempting to insert user: ${req.body.userName} to DB`);
 
-	const user = convertToUserDomainObjectFromRequest(req);
+	try {
+		const user = convertToUserDomainObjectFromRequest(req);
+		const userData = convertToUserDataObjectFromDomainObject(user);
+		const savedUser = await userData.save();
+		const userApiResponse = convertToUserApiObjectFromDataObject(savedUser);
 
-	const userData = convertToUserDataObjectFromDomainObject(user);
-	console.log(`1`);
-
-	const savedUser = await userData.save();
-	console.log(`2`);
-	const userApiResponse = convertToUserApiObjectFromDataObject(savedUser);
-	console.log(`3`);
-
-	res.json({
-		data: userApiResponse,
-	});
-	// try {
-	// 		// const savedUser = await userData.save();
-
-	// 	} catch (err) {
-	// 		throw new EShopError('Unable to create User.', 401);
-	// 	}
+		res.json({
+			data: userApiResponse,
+		});
+	} catch (err) {
+		throw new EShopError('Unable to create User.', 401);
+	}
 });
 
 const getUsers = asyncHandler(async (req, res, next) => {
