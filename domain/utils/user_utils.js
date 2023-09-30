@@ -3,7 +3,6 @@ const Role = require('../named_entites/roles');
 const Status = require('../named_entites/status');
 const UserApiResponse = require('../models/user_api');
 const UserData = require('../data/user_data');
-const UserDomain = require('../models/user_domain');
 
 exports.convertToUserDataObjectFromApiRequest = (req) => {
 	return new UserData({

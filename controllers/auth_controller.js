@@ -30,25 +30,17 @@ const loginUserWithEmail = asyncHandler(async (req, res, next) => {
 	if (user && (await user.isPasswordMatching(password, user.password))) {
 		const refreshToken = await generateRefreshToken(user.id);
 
-		const updateuser = await UserData.findByIdAndUpdate(
-			user.id,
-			{
-				refreshToken: refreshToken,
-			},
-			{ new: true }
-		);
-
 		res.cookie('refreshToken', refreshToken, {
 			httpOnly: true,
 			maxAge: 72 * 60 * 60 * 1000,
 		});
 
 		res.json({
-			_id: user?._id,
-			firstname: user?.firstname,
-			lastname: user?.lastname,
-			email: user?.email,
-			mobile: user?.mobile,
+			id: user.id,
+			firstname: user.firstname,
+			lastname: user.lastname,
+			email: user.email,
+			mobile: user.mobile,
 			token: refreshToken,
 		});
 	} else {

@@ -8,4 +8,11 @@ const trial = async () => {
 	console.log(areMatching);
 };
 
-trial();
+const trial1 = async () => {
+	const date = '2023-09-27T18:42:54.399+00:00';
+	const parsedDate = new Date(date);
+
+	console.log(parsedDate);
+};
+
+trial1();
