@@ -5,31 +5,17 @@ const UserApiResponse = require('../models/user_api');
 const UserData = require('../data/user_data');
 const UserDomain = require('../models/user_domain');
 
-exports.convertToUserDataObjectFromDomainObject = (userDomain) => {
+exports.convertToUserDataObjectFromApiRequest = (req) => {
 	return new UserData({
-		firstName: userDomain.firstName,
-		lastName: userDomain.lastName,
-		userName: userDomain.userName,
-		mobile: userDomain.mobile,
-		email: userDomain.email,
-		password: userDomain.password,
-		role: userDomain.role,
-		status: userDomain.status,
+		firstName: req.body.firstName,
+		lastName: req.body.lastName,
+		userName: req.body.userName,
+		mobile: req.body.mobile,
+		email: req.body.email,
+		password: bcrypt.hashSync(req.body.password, 11),
+		role: Role.User.description,
+		status: Status.Active.description,
 	});
-};
-
-exports.convertToUserDomainObjectFromRequest = (req) => {
-	return new UserDomain(
-		null,
-		req.body.firstName,
-		req.body.lastName,
-		req.body.userName,
-		req.body.mobile,
-		req.body.email,
-		bcrypt.hashSync(req.body.password, 11),
-		Role.User.description,
-		Status.Active.description
-	);
 };
 
 exports.convertToUserApiObjectFromDataObject = (userData) => {
