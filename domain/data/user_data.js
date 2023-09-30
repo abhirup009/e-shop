@@ -30,6 +30,7 @@ const UserSchema = new mongoose.Schema(
 		password: {
 			type: String,
 			required: true,
+			select: false,
 		},
 		role: {
 			type: String,
@@ -56,6 +57,20 @@ UserSchema.methods.isPasswordMatching = async (
 	originalPassword
 ) => {
 	return await bcrypt.compare(enteredPassword, originalPassword);
+};
+
+UserSchema.methods.isPasswordChangedAfter = (jwtTimestamp) => {
+	if (this.passwordChangedAt) {
+		const passwordChangeTime = parseInt(
+			this.passwordChangedAt.getTime() / 1000,
+			10
+		);
+
+		return jwtTimestamp < passwordChangeTime;
+	}
+
+	// false specifies that the password was either not changed or changed before token issue
+	return false;
 };
 
 module.exports = mongoose.model('User', UserSchema);
