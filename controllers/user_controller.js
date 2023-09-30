@@ -2,8 +2,7 @@ const UserData = require('../domain/data/user_data');
 const EShopError = require('../domain/errors/error');
 const UserApiResponse = require('../domain/models/user_api');
 const {
-	convertToUserDataObjectFromDomainObject,
-	convertToUserDomainObjectFromRequest,
+	convertToUserDataObjectFromApiRequest,
 	convertToUserApiObjectFromDataObject,
 } = require('../domain/utils/user_utils');
 const asyncHandler = require('express-async-handler');
@@ -12,8 +11,7 @@ const createUser = asyncHandler(async (req, res, next) => {
 	console.log(`Attempting to insert user: ${req.body.userName} to DB`);
 
 	try {
-		const user = convertToUserDomainObjectFromRequest(req);
-		const userData = convertToUserDataObjectFromDomainObject(user);
+		const userData = convertToUserDataObjectFromApiRequest(req);
 		const savedUser = await userData.save();
 		const userApiResponse = convertToUserApiObjectFromDataObject(savedUser);
 
