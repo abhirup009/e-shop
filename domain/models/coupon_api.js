@@ -1,5 +1,6 @@
 class CouponApiResponse {
 	constructor(
+		id,
 		code,
 		name,
 		expiry,
@@ -8,6 +9,7 @@ class CouponApiResponse {
 		applicableOn,
 		description
 	) {
+		this.id = id;
 		this.code = code;
 		this.name = name;
 		this.expiry = expiry;
