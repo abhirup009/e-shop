@@ -28,4 +28,12 @@ var ReviewSchema = new mongoose.Schema(
 	}
 );
 
+ReviewSchema.pre(/^find/, function (next) {
+	this.populate({
+		path: 'postedBy',
+		select: 'userName email',
+	});
+	next();
+});
+
 module.exports = mongoose.model('Review', ReviewSchema);

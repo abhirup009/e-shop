@@ -1,41 +1,38 @@
 const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
-
+const ReviewData = require('../domain/data/review_data');
 const {
-	convertToProductDataObjectFromApiRequest,
-	covertToApiResponseFromProductDataObject,
-} = require('../domain/utils/product_utils');
+	convertApiRequestToReviewDataObject,
+	convertReviewDataObjectToApiResponse,
+} = require('../domain/utils/review_utils');
 const EShopError = require('../domain/errors/error');
-const Product = require('../domain/data/product_data');
 
-const createProduct = asyncHandler(async (req, res) => {
+const createReview = asyncHandler(async (req, res) => {
 	try {
-		const productData = convertToProductDataObjectFromApiRequest(req);
-		const savedProduct = await productData.save();
-		const productApiResponse =
-			covertToApiResponseFromProductDataObject(savedProduct);
+		const reviewData = convertApiRequestToReviewDataObject(req);
+
+		const currentReview = await reviewData.save();
+		const reviewApiResponse =
+			convertReviewDataObjectToApiResponse(currentReview);
 
 		res.status(201).json({
-			data: productApiResponse,
 			status: 'success',
+			data: reviewApiResponse,
 		});
 	} catch (err) {
-		throw new EShopError('Unable to create Product', 400);
+		throw new EShopError('Unable to post a new review!', 500);
 	}
 });
 
-const getProduct = asyncHandler(async (req, res) => {
+const getReview = asyncHandler(async (req, res) => {
 	try {
-		const product = await Product.findById(req.params?.id).populate(
-			'reviews'
-		);
+		const review = await ReviewData.findById(req.params?.id);
 
-		const productApiResponse =
-			covertToApiResponseFromProductDataObject(product);
+		const reviewApiResponse = convertReviewDataObjectToApiResponse(review);
 
 		res.status(200).json({
 			status: 'success',
-			data: productApiResponse,
+			data: reviewApiResponse,
 		});
 	} catch (err) {
 		throw new EShopError(
@@ -45,7 +42,7 @@ const getProduct = asyncHandler(async (req, res) => {
 	}
 });
 
-const getAllProducts = asyncHandler(async (req, res, next) => {
+const getAllReviews = asyncHandler(async (req, res, next) => {
 	try {
 		// build query
 		// Filtering
@@ -60,7 +57,7 @@ const getAllProducts = asyncHandler(async (req, res, next) => {
 			(match) => `$${match}`
 		);
 
-		let query = Product.find(JSON.parse(queryStr));
+		let query = ReviewData.find(JSON.parse(queryStr));
 
 		//Sorting
 		if (req.query.sort) {
@@ -85,29 +82,29 @@ const getAllProducts = asyncHandler(async (req, res, next) => {
 
 		query = query.skip(skip).limit(limit);
 		if (req.query.page) {
-			const numDocuments = await Product.countDocuments();
+			const numDocuments = await ReviewData.countDocuments();
 			if (skip >= numDocuments) {
 				throw new EShopError('This Page does not exist', 400);
 			}
 		}
 
 		//execute query
-		const products = await query;
+		const reviews = await query;
 
-		const convertedProducts = products.map((product) => {
-			return covertToApiResponseFromProductDataObject(product);
+		const convertedReviews = reviews.map((review) => {
+			return convertReviewDataObjectToApiResponse(review);
 		});
 
 		res.status(200).json({
 			status: 'success',
-			data: convertedProducts,
+			data: convertedReviews,
 		});
 	} catch (err) {
 		if (JSON.stringify(err.statusCode).startsWith('4')) {
 			return next(err);
 		}
-		throw new EShopError('Unable to get all products', 500);
+		throw new EShopError('Unable to get all reviews', 500);
 	}
 });
 
-module.exports = { createProduct, getProduct, getAllProducts };
+module.exports = { createReview, getAllReviews, getReview };

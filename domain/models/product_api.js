@@ -9,7 +9,8 @@ class ProductApiResponse {
 		brand,
 		quantity,
 		color,
-		images
+		images,
+		reviews
 	) {
 		this._id = _id;
 		this.title = title;
@@ -21,6 +22,7 @@ class ProductApiResponse {
 		this.quantity = quantity;
 		this.color = color;
 		this.images = images;
+		this.reviews = reviews;
 	}
 }
 
