@@ -51,8 +51,16 @@ const getCart = asyncHandler(async (req, res) => {
 			.populate('products.product')
 			.populate('couponApplied');
 
+		let cartTotal = 0;
+		cart.products.map((product) => {
+			cartTotal = cartTotal + product.product.price * product.count;
+		});
+
 		const cartApiResponse =
-			covertToExpandedApiResponseFromExpandedCartDataObject(cart);
+			covertToExpandedApiResponseFromExpandedCartDataObject(
+				cart,
+				cartTotal
+			);
 
 		res.json({ data: cartApiResponse });
 	} catch (error) {

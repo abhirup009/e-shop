@@ -17,13 +17,21 @@ exports.covertToApiResponseFromCartDataObject = (cartData) => {
 	);
 };
 
-exports.covertToExpandedApiResponseFromExpandedCartDataObject = (cartData) => {
+exports.covertToExpandedApiResponseFromExpandedCartDataObject = (
+	cartData,
+	cartTotal
+) => {
 	return new CartApiResponse(
 		cartData.id,
 		cartData.products.map((product) => {
-			return covertToApiResponseFromProductDataObject(product.product);
+			return {
+				...covertToApiResponseFromProductDataObject(product.product),
+				count: product.count,
+				selectedColor: product.color,
+			};
 		}),
 		convertToCouponApiObjectFromDataObject(cartData.couponApplied),
-		cartData.userId
+		cartData.userId,
+		cartTotal
 	);
 };
