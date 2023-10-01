@@ -23,8 +23,8 @@ var ProductSchema = new mongoose.Schema(
 			required: true,
 		},
 		category: {
-			type: String,
-			required: true,
+			type: mongoose.Schema.ObjectId,
+			ref: 'PCategory',
 		},
 		brand: {
 			type: String,
@@ -53,7 +53,15 @@ var ProductSchema = new mongoose.Schema(
 	},
 	{
 		timestamps: true,
+		toJSON: { virtuals: true },
+		toObject: { virtuals: true },
 	}
 );
+
+ProductSchema.virtual('reviews', {
+	ref: 'Review',
+	foreignField: 'product',
+	localField: '_id',
+});
 
 module.exports = mongoose.model('Product', ProductSchema);

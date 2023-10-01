@@ -26,6 +26,7 @@ exports.covertToApiResponseFromProductDataObject = (productData) => {
 		productData.brand,
 		productData.quantity,
 		productData.color,
-		productData.images
+		productData.images,
+		productData.reviews
 	);
 };
