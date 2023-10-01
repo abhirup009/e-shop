@@ -57,7 +57,7 @@ const protect = asyncHandler(async (req, res, next) => {
 		req.headers.authorization.startsWith('Bearer')
 	) {
 		token = req.headers.authorization.split(' ')[1];
-	} else if (req.cookies.refreshToken) {
+	} else if (req.cookies?.refreshToken) {
 		token = req.cookies.refreshToken;
 	}
 
@@ -72,7 +72,7 @@ const protect = asyncHandler(async (req, res, next) => {
 	const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
 	// validate if the user still exists
-	const currUser = UserData.findById(decoded.id);
+	const currUser = await UserData.findById(decoded.id);
 	if (!currUser) {
 		throw new EShopError(
 			'user belonging to this request no longer exists!',
@@ -81,7 +81,7 @@ const protect = asyncHandler(async (req, res, next) => {
 	}
 
 	// validate if the last password change was before this token was issued
-	if (this.isPasswordChangedAfter(decoded.iat)) {
+	if (currUser.isPasswordChangedAfter(decoded.iat)) {
 		throw new EShopError(
 			'User recently changed password! Please login again!!',
 			401
@@ -92,4 +92,4 @@ const protect = asyncHandler(async (req, res, next) => {
 	next();
 });
 
-module.exports = { loginUserWithEmail, restrictTo };
+module.exports = { loginUserWithEmail, restrictTo, protect };
