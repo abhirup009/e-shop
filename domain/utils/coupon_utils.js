@@ -15,6 +15,7 @@ exports.convertToCouponDataObjectFromApiRequest = (req) => {
 
 exports.convertToCouponApiObjectFromDataObject = (couponData) => {
 	return new CouponApiResponse(
+		couponData._id,
 		couponData.code,
 		couponData.name,
 		couponData.expiry,

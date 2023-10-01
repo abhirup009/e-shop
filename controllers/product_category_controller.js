@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const ProductCategoryData = require('../domain/data/product_category_data');
 const asyncHandler = require('express-async-handler');
+const EShopError = require('../domain/errors/error');
 
 const createProduct = asyncHandler(async (req, res, next) => {
 	try {

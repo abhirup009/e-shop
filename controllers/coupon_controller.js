@@ -69,7 +69,10 @@ const getCoupon = asyncHandler(async (req, res) => {
 
 	try {
 		const coupon = await CouponData.findOne({ code });
-		res.json({ data: coupon });
+
+		const couponApiResponse =
+			convertToCouponApiObjectFromDataObject(coupon);
+		res.json({ data: couponApiResponse });
 	} catch (error) {
 		throw new EShopError('Unable to find coupon.', 400);
 	}
