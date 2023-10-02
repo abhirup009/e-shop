@@ -6,12 +6,13 @@ const {
 	createProduct,
 	getProduct,
 	getAllProducts,
+	updateProduct,
+	deleteProduct,
 } = require('../controllers/product_controller');
 
+router.route('/').get(getAllProducts).post(protect, createProduct);
+
 router.use(protect);
-
-router.route('/').get(getAllProducts).post(createProduct);
-
-router.route('/:id').get(getProduct);
+router.route('/:id').get(getProduct).patch(updateProduct).delete(deleteProduct);
 
 module.exports = router;

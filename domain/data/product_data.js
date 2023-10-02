@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const ProductCategoryData = require('./product_category_data');
+const BrandData = require('./brand_data');
 const EShopError = require('../errors/error');
 
 //Declare the Schema of the Product Model
-var ProductSchema = new mongoose.Schema(
+var productSchema = new mongoose.Schema(
 	{
 		title: {
 			type: String,
@@ -30,7 +31,8 @@ var ProductSchema = new mongoose.Schema(
 			required: true,
 		},
 		brand: {
-			type: String,
+			type: mongoose.Schema.ObjectId,
+			ref: 'Brand',
 			required: true,
 		},
 		quantity: {
@@ -61,14 +63,15 @@ var ProductSchema = new mongoose.Schema(
 	}
 );
 
-ProductSchema.virtual('reviews', {
+productSchema.virtual('reviews', {
 	ref: 'Review',
 	foreignField: 'product',
 	localField: '_id',
 });
 
-ProductSchema.pre('validate', async function (next) {
+productSchema.pre('validate', async function (next) {
 	const productCategory = await ProductCategoryData.findById(this.category);
+	const brand = await BrandData.findById(this.brand);
 	if (!productCategory) {
 		return next(
 			new EShopError(
@@ -77,7 +80,12 @@ ProductSchema.pre('validate', async function (next) {
 			)
 		);
 	}
+	if (!brand) {
+		return next(
+			new EShopError('The entered brand ID does not exist!', 400)
+		);
+	}
 	next();
 });
 
-module.exports = mongoose.model('Product', ProductSchema);
+module.exports = mongoose.model('Product', productSchema);

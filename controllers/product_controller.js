@@ -6,7 +6,10 @@ const {
 	covertToApiResponseFromProductDataObject,
 } = require('../domain/utils/product_utils');
 const EShopError = require('../domain/errors/error');
-const Product = require('../domain/data/product_data');
+const ProductData = require('../domain/data/product_data');
+const {
+	validateMongoDbId,
+} = require('../domain/utils/helpers/validate_mongodb_id');
 
 const createProduct = asyncHandler(async (req, res) => {
 	//intentionally removed try/catch blocks as it hides the actual point
@@ -24,10 +27,10 @@ const createProduct = asyncHandler(async (req, res) => {
 });
 
 const getProduct = asyncHandler(async (req, res) => {
+	const id = req.params;
+	validateMongoDbId(id);
 	try {
-		const product = await Product.findById(req.params?.id).populate(
-			'reviews'
-		);
+		const product = await ProductData.findById(id).populate('reviews');
 
 		const productApiResponse =
 			covertToApiResponseFromProductDataObject(product);
@@ -37,10 +40,7 @@ const getProduct = asyncHandler(async (req, res) => {
 			data: productApiResponse,
 		});
 	} catch (err) {
-		throw new EShopError(
-			`Error retrieving product for id ${req.params?.id}`,
-			500
-		);
+		throw new EShopError(`Error retrieving product for id ${id}`, 500);
 	}
 });
 
@@ -49,7 +49,7 @@ const getAllProducts = asyncHandler(async (req, res, next) => {
 		// checking if categoryId exists in request params and merging it with req.query params
 		let filter = {};
 		if (req.params.categoryId) {
-			filter = req.params.categoryId;
+			filter = { category: req.params.categoryId };
 		}
 
 		// build query
@@ -65,7 +65,7 @@ const getAllProducts = asyncHandler(async (req, res, next) => {
 			(match) => `$${match}`
 		);
 
-		let query = Product.find(JSON.parse(queryStr));
+		let query = ProductData.find(JSON.parse(queryStr));
 
 		//Sorting
 		if (req.query.sort) {
@@ -115,4 +115,40 @@ const getAllProducts = asyncHandler(async (req, res, next) => {
 	}
 });
 
-module.exports = { createProduct, getProduct, getAllProducts };
+const updateProduct = asyncHandler(async (req, res, next) => {
+	const id = req.params;
+	validateMongoDbId(id);
+
+	const updatedProduct = await ProductData.findByIdAndUpdate(id, req.body, {
+		new: true,
+		runValidators: true,
+	});
+
+	const convertedApiResponse =
+		covertToApiResponseFromProductDataObject(updatedProduct);
+
+	res.status(200).json({
+		status: 'success',
+		data: convertedApiResponse,
+	});
+});
+
+const deleteProduct = asyncHandler(async (req, res, next) => {
+	const id = req.params;
+	validateMongoDbId(id);
+
+	await ProductData.findByIdAndDelete(id);
+
+	res.status(204).json({
+		status: 'success',
+		data: null,
+	});
+});
+
+module.exports = {
+	createProduct,
+	getProduct,
+	getAllProducts,
+	updateProduct,
+	deleteProduct,
+};

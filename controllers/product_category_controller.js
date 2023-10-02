@@ -2,13 +2,16 @@ const mongoose = require('mongoose');
 const ProductCategoryData = require('../domain/data/product_category_data');
 const asyncHandler = require('express-async-handler');
 const EShopError = require('../domain/errors/error');
+const {
+	validateMongoDbId,
+} = require('../domain/utils/helpers/validate_mongodb_id');
 
 const createProductCategory = asyncHandler(async (req, res, next) => {
 	try {
-		const savedProduct = await ProductCategoryData.create(req.body);
+		const savedProductCategory = await ProductCategoryData.create(req.body);
 
 		res.status(201).json({
-			data: savedProduct,
+			data: savedProductCategory,
 			status: 'success',
 		});
 	} catch (err) {
@@ -77,4 +80,37 @@ const getAllProductCategories = asyncHandler(async (req, res, next) => {
 	}
 });
 
-module.exports = { createProductCategory, getAllProductCategories };
+const updateProductCategory = asyncHandler(async (req, res, next) => {
+	const id = req.params;
+	validateMongoDbId(id);
+
+	const updatedProductCategoryDoc =
+		await ProductCategoryData.findByIdAndUpdate(id, req.body, {
+			new: true,
+			runValidators: true,
+		});
+
+	res.status(200).json({
+		status: 'success',
+		data: updatedProductCategoryDoc,
+	});
+});
+
+const deleteProductCategory = asyncHandler(async (req, res, next) => {
+	const id = req.params;
+	validateMongoDbId(id);
+
+	await ProductCategoryData.findByIdAndDelete(id);
+
+	res.status(204).json({
+		status: 'success',
+		data: null,
+	});
+});
+
+module.exports = {
+	createProductCategory,
+	getAllProductCategories,
+	updateProductCategory,
+	deleteProductCategory,
+};
