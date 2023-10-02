@@ -9,19 +9,18 @@ const EShopError = require('../domain/errors/error');
 const Product = require('../domain/data/product_data');
 
 const createProduct = asyncHandler(async (req, res) => {
-	try {
-		const productData = convertToProductDataObjectFromApiRequest(req);
-		const savedProduct = await productData.save();
-		const productApiResponse =
-			covertToApiResponseFromProductDataObject(savedProduct);
+	//intentionally removed try/catch blocks as it hides the actual point
+	// where error is thrown in the error stack
 
-		res.status(201).json({
-			data: productApiResponse,
-			status: 'success',
-		});
-	} catch (err) {
-		throw new EShopError('Unable to create Product', 400);
-	}
+	const productData = convertToProductDataObjectFromApiRequest(req);
+	const savedProduct = await productData.save();
+	const productApiResponse =
+		covertToApiResponseFromProductDataObject(savedProduct);
+
+	res.status(201).json({
+		data: productApiResponse,
+		status: 'success',
+	});
 });
 
 const getProduct = asyncHandler(async (req, res) => {
@@ -47,9 +46,15 @@ const getProduct = asyncHandler(async (req, res) => {
 
 const getAllProducts = asyncHandler(async (req, res, next) => {
 	try {
+		// checking if categoryId exists in request params and merging it with req.query params
+		let filter = {};
+		if (req.params.categoryId) {
+			filter = req.params.categoryId;
+		}
+
 		// build query
 		// Filtering
-		let queryObj = { ...req.query };
+		let queryObj = { ...req.query, ...filter };
 		const excludedFields = ['page', 'sort', 'fields', 'limit'];
 		excludedFields.forEach((el) => delete queryObj[el]);
 
