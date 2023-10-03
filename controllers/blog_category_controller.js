@@ -12,7 +12,7 @@ const createBlogCategory = asyncHandler(async (req, res, next) => {
 });
 
 const deleteBlogCategory = asyncHandler(async (req, res, next) => {
-	const id = req.params;
+	const { id } = req.params;
 	validateMongoDbId(id);
 
 	await BlogCategoryData.findByIdAndDelete(id);
@@ -33,7 +33,7 @@ const getAllBlogCategories = async (req, res, next) => {
 };
 
 const updateBlogCategory = asyncHandler(async (req, res, next) => {
-	const id = req.params;
+	const { id } = req.params;
 	validateMongoDbId(id);
 
 	const blogCategory = await BlogCategoryData.findByIdAndUpdate(
