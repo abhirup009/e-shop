@@ -13,6 +13,7 @@ const cartRoutes = require('./routes/cart_routes');
 const blogRoutes = require('./routes/blog_routes');
 const blogCategoryRoutes = require('./routes/blog_category_routes');
 const brandRoutes = require('./routes/brand_routes');
+const colorRoutes = require('./routes/color_routes');
 const { BaseV1 } = require('./domain/named_entites/base_endpoints');
 const { errorHandler } = require('./handlers/error_handler');
 const morgan = require('morgan');
@@ -34,6 +35,7 @@ app.use(`${BaseV1}/carts/`, cartRoutes);
 app.use(`${BaseV1}/blogs/`, blogRoutes);
 app.use(`${BaseV1}/blog-categories/`, blogCategoryRoutes);
 app.use(`${BaseV1}/brands/`, brandRoutes);
+app.use(`${BaseV1}/colors/`, colorRoutes);
 app.use(errorHandler);
 
 module.exports = app;

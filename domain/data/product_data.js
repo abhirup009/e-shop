@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const ProductCategoryData = require('./product_category_data');
 const BrandData = require('./brand_data');
+const ColorData = require('./color_data');
 const EShopError = require('../errors/error');
 
 //Declare the Schema of the Product Model
@@ -49,7 +50,12 @@ var productSchema = new mongoose.Schema(
 				url: String,
 			},
 		],
-		color: [],
+		color: [
+			{
+				type: mongoose.Schema.ObjectId,
+				ref: 'Color',
+			},
+		],
 		tags: String,
 		numRatings: {
 			type: Number,
@@ -72,6 +78,7 @@ productSchema.virtual('reviews', {
 productSchema.pre('validate', async function (next) {
 	const productCategory = await ProductCategoryData.findById(this.category);
 	const brand = await BrandData.findById(this.brand);
+
 	if (!productCategory) {
 		return next(
 			new EShopError(
@@ -83,6 +90,22 @@ productSchema.pre('validate', async function (next) {
 	if (!brand) {
 		return next(
 			new EShopError('The entered brand ID does not exist!', 400)
+		);
+	}
+
+	if (this.color) {
+		await Promise.all(
+			this.color.map(async (col) => {
+				const doc = await ColorData.findById(col);
+				if (!doc) {
+					return next(
+						new EShopError(
+							`The entered color Id ${col} does not exist!`,
+							400
+						)
+					);
+				}
+			})
 		);
 	}
 	next();
